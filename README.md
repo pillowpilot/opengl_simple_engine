@@ -20,6 +20,10 @@ Development
 ===========
 
 - See [this](https://stackoverflow.com/questions/58077908/linking-conan-include-to-vs-code) SO thread to understand how to feed VSCode Intellisense with conan/CMake output.
+- To add a library (like spdlog):
+  1. First, add it to the `conanfile.txt` file (`spdlog/[>=1.4.1]` inside the `[requires]` section).
+  2. Then, add it into the `CMakeLists.txt` file (add `find_package(spdlog REQUIRED)`).
+  3. Finally, link it to the executable (`target_link_libraries(${PROJECT_NAME} spdlog::spdlog)`).
 
  Throubleshooting
  ================

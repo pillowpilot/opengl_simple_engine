@@ -1,55 +1,78 @@
 #include <iostream>
+#include <exception>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void updateWindow(GLFWwindow* window, double currentTime)
+#include "./utils.cpp"
+#include "./vertex_shader.cpp"
+#include "./fragment_shader.cpp"
+#include "spdlog/spdlog.h"
+
+// Globals
+#define numberOfVAOs 1
+GLuint vao[numberOfVAOs];
+
+GLuint createRenderingProgram(GLuint vertexShaderId, GLuint fragmentShaderId)
 {
-    glClearColor(1.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    GLuint id = glCreateProgram();
+
+    glAttachShader(id, vertexShaderId);
+    glAttachShader(id, fragmentShaderId);
+    glLinkProgram(id);
+
+    return id;
+}
+
+void initialize()
+{
+    glGenVertexArrays(numberOfVAOs, vao);
+    glBindVertexArray(vao[0]);
+}
+
+void updateWindow(window_t& window, GLuint programId, double currentTime)
+{
+    glUseProgram(programId);
+    glPointSize(30.0f);
+    glDrawArrays(GL_POINTS, 0, 1);
+}
+
+window_t createWindow(const int height, const int width, const std::string& title)
+{
+    window_t window(glfwCreateWindow(height, width, title.c_str(), nullptr, nullptr));
+    glfwMakeContextCurrent(window.get());
+
+    return window;
 }
 
 int main()
 {
-    std::cout << "GLFW version: " << glfwGetVersionString() << std::endl;
-    std::cout << "GLEW version: " << glewGetString(GLEW_VERSION) << std::endl;
-
-    // Initialize GLFW
-    if(!glfwInit())
-    {
-        std::cerr << "Could not initialize GLFW" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    
     const int windowHeight = 600;
     const int windowWidth = 600;
     const std::string windowTitle = "Simple Graphics Engine";
 
-    GLFWwindow* window = glfwCreateWindow(windowHeight, windowWidth, windowTitle.c_str(), nullptr, nullptr);
-    glfwMakeContextCurrent(window);
+    printWelcomeMessage();
+    initializeGLFW();
+    window_t window = createWindow(windowHeight, windowWidth, windowTitle);
 
-    // Initialize GLEW
-    if(glewInit() != GLEW_OK)
-    {
-        std::cerr << "Could not initialize GLEW" << std::endl;
-        return EXIT_FAILURE;
-    }
+    initializeGLEW();
     
     glfwSwapInterval(1);
 
+    GLuint vertexShaderId = createVertexShader();
+    GLuint fragmentShaderId = createFragmentShader();
+    GLuint programId = createRenderingProgram(vertexShaderId, fragmentShaderId);
 
-    while(!glfwWindowShouldClose(window))
+    initialize();
+    while(!glfwWindowShouldClose(window.get()))
     {
-        updateWindow(window, glfwGetTime());
-        glfwSwapBuffers(window);
+        updateWindow(window, programId, glfwGetTime());
+        glfwSwapBuffers(window.get());
         glfwPollEvents();
     }
 
     // Destroy resources
-    glfwDestroyWindow(window);
     glfwTerminate();
 
     return EXIT_SUCCESS;
