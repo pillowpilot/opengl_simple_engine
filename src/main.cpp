@@ -50,12 +50,13 @@ int main()
     
     glfwSwapInterval(1);
 
-    GLuint vertexShaderId = createVertexShader();
+    const auto vertexShaderFilepath = std::filesystem::path("../shaders/vertex_shader_origin_point.glsl");
+    const VertexShader vertexShader(vertexShaderFilepath);
 
     const auto fragmentShaderFilepath = std::filesystem::path("../shaders/fragment_shader_all_blue.glsl");
     const FragmentShader fragmentShader(fragmentShaderFilepath);
     
-    GLuint programId = createRenderingProgram(vertexShaderId, fragmentShader.getId());
+    GLuint programId = createRenderingProgram(vertexShader.getId(), fragmentShader.getId());
 
     initialize();
     while(!glfwWindowShouldClose(window.get()))
