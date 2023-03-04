@@ -15,27 +15,6 @@
 #define numberOfVAOs 1
 GLuint vao[numberOfVAOs];
 
-GLuint createRenderingProgram(GLuint vertexShaderId, GLuint fragmentShaderId)
-{
-    GLuint id = glCreateProgram();
-
-    glAttachShader(id, vertexShaderId);
-    glAttachShader(id, fragmentShaderId);
-    glLinkProgram(id);
-
-    GLint wasLinked;
-    requestProgramParameter(id, ProgramParameter::LinkStatus, &wasLinked);
-    if(wasLinked ==  GL_FALSE)
-    {
-        spdlog::error("Linking of program {} failed", id);
-        printProgramInfoLog(id);
-    }
-    else
-        spdlog::info("Linking of program {} successful", id);
-
-    return id;
-}
-
 void initialize()
 {
     glGenVertexArrays(numberOfVAOs, vao);

@@ -24,4 +24,6 @@ void requestProgramParameter(GLuint programId, ProgramParameter param, GLint* ou
 
 void printProgramInfoLog(GLuint programId);
 
+GLuint createRenderingProgram(GLuint vertexShaderId, GLuint fragmentShaderId);
+
 #endif // __PROGRAM_HPP__

@@ -18,3 +18,24 @@ void printProgramInfoLog(GLuint programId)
         spdlog::info("Program Info Log: {}", log.get());
     }
 }
+
+GLuint createRenderingProgram(GLuint vertexShaderId, GLuint fragmentShaderId)
+{
+    GLuint id = glCreateProgram();
+
+    glAttachShader(id, vertexShaderId);
+    glAttachShader(id, fragmentShaderId);
+    glLinkProgram(id);
+
+    GLint wasLinked;
+    requestProgramParameter(id, ProgramParameter::LinkStatus, &wasLinked);
+    if(wasLinked ==  GL_FALSE)
+    {
+        spdlog::error("Linking of program {} failed", id);
+        printProgramInfoLog(id);
+    }
+    else
+        spdlog::info("Linking of program {} successful", id);
+
+    return id;
+}
