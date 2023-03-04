@@ -8,7 +8,7 @@
 
 #include "./utils.hpp"
 
-enum ShaderParameter
+enum class ShaderParameter
 {
     ShaderType = GL_SHADER_TYPE,
     DeleteStatus = GL_DELETE_STATUS,

@@ -3,7 +3,7 @@
 void requestShaderParameter(GLuint shaderId, ShaderParameter param, GLint* output)
 {
     spdlog::info("Requesting parameters of shader {}", shaderId);
-    glGetShaderiv(shaderId, param, output);
+    glGetShaderiv(shaderId, (GLenum) param, output);
     checkForOpenGLErrors();
 }
 
