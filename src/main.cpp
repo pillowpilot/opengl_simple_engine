@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "./utils.hpp"
+#include "./program.hpp"
 #include "./vertex_shader.hpp"
 #include "./fragment_shader.hpp"
 #include "spdlog/spdlog.h"
@@ -21,6 +22,16 @@ GLuint createRenderingProgram(GLuint vertexShaderId, GLuint fragmentShaderId)
     glAttachShader(id, vertexShaderId);
     glAttachShader(id, fragmentShaderId);
     glLinkProgram(id);
+
+    GLint wasLinked;
+    requestProgramParameter(id, ProgramParameter::LinkStatus, &wasLinked);
+    if(wasLinked ==  GL_FALSE)
+    {
+        spdlog::error("Linking of program {} failed", id);
+        printProgramInfoLog(id);
+    }
+    else
+        spdlog::info("Linking of program {} successful", id);
 
     return id;
 }
