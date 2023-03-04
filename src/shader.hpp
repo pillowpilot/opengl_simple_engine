@@ -8,6 +8,19 @@
 
 #include "./utils.hpp"
 
+class Shader
+{
+protected:
+    std::filesystem::path filepath;
+    GLuint id;
+
+public:
+    auto getId() const { return id; }
+    bool getCompilationStatus() const;
+    std::size_t getInfoLogLength() const;
+    std::string getInfoLog() const;
+};
+
 enum class ShaderParameter
 {
     ShaderType = GL_SHADER_TYPE,
