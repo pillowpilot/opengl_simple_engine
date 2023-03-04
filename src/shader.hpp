@@ -30,8 +30,10 @@ enum class ShaderParameter
     ShaderSourceLength = GL_SHADER_SOURCE_LENGTH,
 };
 
+[[deprecated]]
 void requestShaderParameter(GLuint shaderId, ShaderParameter param, GLint* output);
 
+[[deprecated]]
 void printShaderInfoLog(GLuint shaderId);
 
 #endif // __SHADER_HPP__
