@@ -11,5 +11,20 @@ GLuint createVertexShader()
     glShaderSource(id, 1, &sourceCode, NULL);
     glCompileShader(id);
 
+    GLint wasCompiled;
+    requestShaderParameter(id, ShaderParameter::CompileStatus, &wasCompiled);
+    if(wasCompiled ==  GL_FALSE)
+    {
+        std::ostringstream msg;
+        msg << "Compilation of shader" << id << " failed";
+        spdlog::error(msg.str());
+    }
+    else
+    {
+        std::ostringstream msg;
+        msg << "Compilation of shader " << id << " successful";
+        spdlog::info(msg.str());
+    }
+
     return id;
 }
