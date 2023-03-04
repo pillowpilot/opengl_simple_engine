@@ -30,6 +30,7 @@ public:
     }
 };
 
+[[deprecated]]
 GLuint createVertexShader();
 
 #endif // __VERTEX_SHADER_HPP__
