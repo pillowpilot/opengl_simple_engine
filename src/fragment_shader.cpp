@@ -1,4 +1,3 @@
-#include <filesystem>
 #include "./fragment_shader.hpp"
 
 GLuint createFragmentShader()
