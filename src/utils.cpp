@@ -42,7 +42,7 @@ void initializeGLEW()
 void printWelcomeMessage()
 {
     const auto glfwVersion = std::string(glfwGetVersionString());
-    const auto glewVersion = std::string(reinterpret_cast<const char*>(glewGetString(GLEW_VERSION)))
+    const auto glewVersion = std::string(reinterpret_cast<const char*>(glewGetString(GLEW_VERSION)));
 
     spdlog::info("GLFW version: " + glfwVersion);
     spdlog::info("GLEW version: " + glewVersion);
