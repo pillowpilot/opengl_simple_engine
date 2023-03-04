@@ -2,13 +2,11 @@
 
 GLuint createVertexShader()
 {
-    const char* sourceCode = 
-        "#version 420 \n"
-        "void main(void) \n"
-        "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+    const auto filepath = std::filesystem::path("../shaders/vertex_shader_origin_point.glsl");
+    const auto sourceCode = readFile(filepath);
 
     GLuint id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(id, 1, &sourceCode, NULL);
+    glShaderSource(id, 1, StringHelper(sourceCode), NULL);
     glCompileShader(id);
 
     GLint wasCompiled;

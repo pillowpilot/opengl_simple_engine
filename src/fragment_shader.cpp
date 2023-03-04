@@ -1,15 +1,13 @@
+#include <filesystem>
 #include "./fragment_shader.hpp"
 
 GLuint createFragmentShader()
 {
-    const char* sourceCode = 
-        "#version 430 \n"
-        "out vec4 color; \n"
-        "void main(void) \n"
-        "{ color = vec4(0.0, 0.0, 1.0, 1.0); }";
-
+    const auto filepath = std::filesystem::path("../shaders/fragment_shader_all_blue.glsl");
+    const auto sourceCode = readFile(filepath);
+        
     GLuint id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(id, 1, &sourceCode, NULL);
+    glShaderSource(id, 1, StringHelper(sourceCode), NULL);
     glCompileShader(id);
 
     GLint wasCompiled;
