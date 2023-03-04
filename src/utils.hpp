@@ -2,6 +2,8 @@
 #define __UTILS_HPP__
 
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -25,5 +27,15 @@ void initializeGLFW();
 void initializeGLEW();
 
 void printWelcomeMessage();
+
+// Compatibility wrapper around std::string
+// Usage: glShaderSource(id, 1, StringHelper(sourceCode), NULL);
+struct StringHelper {
+  const char *p;
+  StringHelper(const std::string& s) : p(s.c_str()) {}
+  operator const char**() { return &p; }
+};
+
+std::string readFile(std::filesystem::path path);
 
 #endif // __UTILS_HPP__
