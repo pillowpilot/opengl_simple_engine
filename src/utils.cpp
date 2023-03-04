@@ -7,7 +7,7 @@ bool checkForOpenGLErrors()
     int errorCode = glGetError();
     while(errorCode != GL_NO_ERROR)
     {
-        spdlog::error("glError: " + errorCode);
+        spdlog::error("glError: {}", errorCode);
         isErrorFound = true;
         errorCode = glGetError();
     }
@@ -17,7 +17,7 @@ bool checkForOpenGLErrors()
 
 void requestShaderParameter(GLuint shaderId, ShaderParameter param, GLint* output)
 {
-    spdlog::info("Requesting parameters of shader " + shaderId);
+    spdlog::info("Requesting parameters of shader {}", shaderId);
     glGetShaderiv(shaderId, param, output);
     checkForOpenGLErrors();
 }
@@ -49,6 +49,6 @@ void printWelcomeMessage()
     const auto glfwVersion = std::string(glfwGetVersionString());
     const auto glewVersion = std::string(reinterpret_cast<const char*>(glewGetString(GLEW_VERSION)));
 
-    spdlog::info("GLFW version: " + glfwVersion);
-    spdlog::info("GLEW version: " + glewVersion);
+    spdlog::info("GLFW version: {}", glfwVersion);
+    spdlog::info("GLEW version: {}", glewVersion);
 }
