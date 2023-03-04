@@ -1,7 +1,4 @@
-#pragma once
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "./fragment_shader.hpp"
 
 GLuint createFragmentShader()
 {
