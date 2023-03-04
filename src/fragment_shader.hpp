@@ -32,6 +32,7 @@ public:
     }
 };
 
+[[deprecated]]
 GLuint createFragmentShader();
 
 #endif // __FRAGMENT_SHADER_HPP__
