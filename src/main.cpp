@@ -51,8 +51,11 @@ int main()
     glfwSwapInterval(1);
 
     GLuint vertexShaderId = createVertexShader();
-    GLuint fragmentShaderId = createFragmentShader();
-    GLuint programId = createRenderingProgram(vertexShaderId, fragmentShaderId);
+
+    const auto fragmentShaderFilepath = std::filesystem::path("../shaders/fragment_shader_all_blue.glsl");
+    const FragmentShader fragmentShader(fragmentShaderFilepath);
+    
+    GLuint programId = createRenderingProgram(vertexShaderId, fragmentShader.getId());
 
     initialize();
     while(!glfwWindowShouldClose(window.get()))
