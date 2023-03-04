@@ -16,6 +16,7 @@ GLuint createVertexShader()
     if(wasCompiled ==  GL_FALSE)
     {
         spdlog::error("Compilation of shader {} failed", id);
+        printShaderInfoLog(id);
     }
     else
         spdlog::info("Compilation of shader {} successful", id);

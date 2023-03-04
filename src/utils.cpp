@@ -15,13 +15,6 @@ bool checkForOpenGLErrors()
     return isErrorFound;
 }
 
-void requestShaderParameter(GLuint shaderId, ShaderParameter param, GLint* output)
-{
-    spdlog::info("Requesting parameters of shader {}", shaderId);
-    glGetShaderiv(shaderId, param, output);
-    checkForOpenGLErrors();
-}
-
 void initializeGLFW()
 {
     if(!glfwInit())
