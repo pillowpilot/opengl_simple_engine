@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "./utils.cpp"
+#include "./utils.hpp"
 #include "./vertex_shader.hpp"
 #include "./fragment_shader.hpp"
 #include "spdlog/spdlog.h"
