@@ -2,6 +2,7 @@
 opengl/system
 glew/2.2.0
 glfw/3.3.8
+glm/cci.20230113
 spdlog/[>=1.4.1]
 
 [generators]
