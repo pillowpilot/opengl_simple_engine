@@ -77,26 +77,9 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     for(int i = 0; i < 24; ++i)
     {
         const float timeFactor = currentTime + i;
-        // Compute model-view matrix
-        const auto viewMatrix = glm::translate(glm::mat4(1.0f), -cameraOffset);
-
-        const auto modelTranslationXAxis = 8.0f * sin(0.35f * timeFactor);
-        const auto modelTranslationYAxis = 8.0f * cos(0.52f * timeFactor);
-        const auto modelTranslationZAxis = 8.0f * sin(0.70f * timeFactor);
-        const auto modelTranslationOffsets = glm::vec3(modelTranslationXAxis, modelTranslationYAxis, modelTranslationZAxis);
-        const auto modelTranslation = glm::translate(glm::mat4(1.0f), modelTranslationOffsets);
-
-        const auto modelRotationXAxis = glm::rotate(glm::mat4(1.0f), (float) (1.75 * timeFactor), glm::vec3(1.0f, 0.0f, 0.0f));
-        const auto modelRotationYAxis = glm::rotate(glm::mat4(1.0f), (float) (1.75 * timeFactor), glm::vec3(0.0f, 1.0f, 0.0f));
-        const auto modelRotationZAxis = glm::rotate(glm::mat4(1.0f), (float) (1.75 * timeFactor), glm::vec3(0.0f, 0.0f, 1.0f));
-        const auto modelRotation = modelRotationXAxis * modelRotationYAxis * modelRotationZAxis;
-        const auto modelMatrix = modelTranslation * modelRotation;
-        
-        const auto mvMatrix = viewMatrix * modelMatrix;
-
-        // Upload model-view matrix
-        const auto mvMatrixLocation = glGetUniformLocation(programId, "mv_matrix");
-        glUniformMatrix4fv(mvMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
+        // Upload time factor
+        const auto timeFactorLocation = glGetUniformLocation(programId, "time_factor");
+        glUniform1f(timeFactorLocation, timeFactor);
 
         // Associate VBO with the corresponding vertex attribute in the vertex shader
         glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0)); // Cube's positions are in vbo[0]
