@@ -38,4 +38,19 @@ struct StringHelper {
 
 std::string readFile(std::filesystem::path path);
 
+template <class InputIter>
+std::ostream& prettyPrint(std::ostream& os, InputIter iter, InputIter end);
+
+template <class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
+{
+    return prettyPrint(os, std::begin(v), std::end(v));
+}
+
+template <class T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& ar)
+{
+    return prettyPrint(os, std::begin(ar), std::end(ar));
+}
+
 #endif // __UTILS_HPP__

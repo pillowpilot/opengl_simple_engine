@@ -73,3 +73,25 @@ std::string readFile(std::filesystem::path path)
         return std::string("");
     }
 }
+
+template <class InputIter>
+std::ostream& prettyPrint(std::ostream& os, InputIter iter, InputIter end)
+{
+    const auto separator = ", ";
+
+    os << "[";
+
+    if(iter != end) // If not empty
+    {
+        os << *iter;
+        iter = ++iter;
+        while(iter != end)
+        {
+            os << separator << *iter;
+            iter = ++iter;
+        }
+    }
+
+    os << "]";
+    return os;
+}
