@@ -16,41 +16,101 @@
 #include "spdlog/spdlog.h"
 
 // Globals
-#define numberOfVAOs 1
-GLuint vao[numberOfVAOs];
+const size_t numberOfVAOs = 1;
+GLuint VAOIds[numberOfVAOs];
 
-float x = 0.0f;
-float increment = 0.01f;
+const size_t numberOfVBOs = 2;
+GLuint VBOIds[numberOfVBOs];
+
+auto cameraOffset = glm::vec3(0.0f, 0.0f, 32.0f);
+
+void loadCube(const GLuint vboId)
+{
+    const float vertices[] = {
+        -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
+        1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
+        1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,
+        -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f};
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboId); // GL_ARRAY_BUFFER is for Vertex attributes
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+}
 
 void initialize()
 {
-    glGenVertexArrays(numberOfVAOs, vao);
-    glBindVertexArray(vao[0]);
-}
+    glGenVertexArrays(sizeof(VAOIds), VAOIds);
+    glBindVertexArray(VAOIds[0]);
+    glGenBuffers(sizeof(VBOIds), VBOIds);
 
-const glm::mat4 scalingMatrix = glm::scale(glm::vec3(2.0f, 2.0f, 2.0f)); // Scaling factors
+    loadCube(VBOIds[0]); // Cube's positions are in vbo[0]
+}
 
 void updateWindow(window_t& window, GLuint programId, double currentTime)
 {
     // Clear background
     glClear(GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0, 0.0, 0.0, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(programId);
 
-    auto scalingMatrixLocation = glGetUniformLocation(programId, "scale_matrix");
-    glUniformMatrix4fv(scalingMatrixLocation, 1, GL_FALSE, glm::value_ptr(scalingMatrix));
+    // Compute perspective matrix
+    int windowHeight, windowWidth;
+    glfwGetFramebufferSize(window.get(), &windowHeight, &windowWidth);
+    const float aspectRatio = ((float) windowWidth) / windowHeight;
+    const auto perspectiveMatrix = glm::perspective(1.04f, aspectRatio, 0.1f, 1000.0f); // 60 degrees = 1.04f radians
 
-    x += increment;
-    if(x > 0.5f || x < -0.5f) // Consider x scaling factor also
-        increment *= -1.0f;
+    // Upload perspective matrix
+    const auto perspectiveMatrixLocation = glGetUniformLocation(programId, "proj_matrix");
+    glUniformMatrix4fv(perspectiveMatrixLocation, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 
-    GLuint offsetLocation = glGetUniformLocation(programId, "offset");
-    glProgramUniform1f(programId, offsetLocation, x);
+    for(int i = 0; i < 24; ++i)
+    {
+        const float timeFactor = currentTime + i;
+        // Compute model-view matrix
+        const auto viewMatrix = glm::translate(glm::mat4(1.0f), -cameraOffset);
 
-    // glPointSize(30.0f);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+        const auto modelTranslationXAxis = 8.0f * sin(0.35f * timeFactor);
+        const auto modelTranslationYAxis = 8.0f * cos(0.52f * timeFactor);
+        const auto modelTranslationZAxis = 8.0f * sin(0.70f * timeFactor);
+        const auto modelTranslationOffsets = glm::vec3(modelTranslationXAxis, modelTranslationYAxis, modelTranslationZAxis);
+        const auto modelTranslation = glm::translate(glm::mat4(1.0f), modelTranslationOffsets);
+
+        const auto modelRotationXAxis = glm::rotate(glm::mat4(1.0f), (float) (1.75 * timeFactor), glm::vec3(1.0f, 0.0f, 0.0f));
+        const auto modelRotationYAxis = glm::rotate(glm::mat4(1.0f), (float) (1.75 * timeFactor), glm::vec3(0.0f, 1.0f, 0.0f));
+        const auto modelRotationZAxis = glm::rotate(glm::mat4(1.0f), (float) (1.75 * timeFactor), glm::vec3(0.0f, 0.0f, 1.0f));
+        const auto modelRotation = modelRotationXAxis * modelRotationYAxis * modelRotationZAxis;
+        const auto modelMatrix = modelTranslation * modelRotation;
+        
+        const auto mvMatrix = viewMatrix * modelMatrix;
+
+        // Upload model-view matrix
+        const auto mvMatrixLocation = glGetUniformLocation(programId, "mv_matrix");
+        glUniformMatrix4fv(mvMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
+
+        // Associate VBO with the corresponding vertex attribute in the vertex shader
+        glBindBuffer(GL_ARRAY_BUFFER, VBOIds[0]); // Cube's positions are in vbo[0]
+        const auto indexOfVertexAttribute = 0; // See layout (location = 0) in vec3 position
+        const auto numberOfComponentsPerVAD = 3;
+        const auto typeOfEachComponent = GL_FLOAT;
+        const auto shouldNormalizeData = GL_FALSE;
+        const auto strideBetweenVAs = 0;
+        const auto initialOffset = reinterpret_cast<void*>(0);
+        glVertexAttribPointer(indexOfVertexAttribute, numberOfComponentsPerVAD, typeOfEachComponent, shouldNormalizeData, strideBetweenVAs, initialOffset);
+        glEnableVertexAttribArray(indexOfVertexAttribute);
+
+        // Adjust OpenGL settings and draw
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 }
 
 window_t createWindow(const int height, const int width, const std::string& title)
@@ -75,10 +135,10 @@ int main()
     
     glfwSwapInterval(1);
 
-    const auto vertexShaderFilepath = std::filesystem::path("../shaders/vertex_shader_x_moving_triangle.glsl");
+    const auto vertexShaderFilepath = std::filesystem::path("../shaders/vertex_shader_dynamic_cube.glsl");
     const VertexShader vertexShader(vertexShaderFilepath);
 
-    const auto fragmentShaderFilepath = std::filesystem::path("../shaders/fragment_shader_all_blue.glsl");
+    const auto fragmentShaderFilepath = std::filesystem::path("../shaders/fragment_shader_dynamic_cube.glsl");
     const FragmentShader fragmentShader(fragmentShaderFilepath);
     
     GLuint programId = createRenderingProgram(vertexShader.getId(), fragmentShader.getId());
