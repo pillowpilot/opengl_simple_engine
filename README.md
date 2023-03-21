@@ -1,9 +1,10 @@
 Requirements
 ============
 
- - pkg-config: Required by xorg/system recipe. Run: `sudo apt install pkg-config`.
- - Add the following into your conan profile (~/.conan2/profiles/default):
- ```
+- pkg-config: Required by xorg/system recipe. Run: `sudo apt install pkg-config`.
+- Add the following into your conan profile (~/.conan2/profiles/default):
+
+```
 [conf]
 tools.system.package_manager:mode = install
 tools.system.package_manager:sudo = True
@@ -28,4 +29,4 @@ Development
  Throubleshooting
  ================
 
- - You may need to manually install `libgl-dev` and `libgl1-mesa-dev`. This solved the error: Package opengl was not found in the pkg-config path.
+- You may need to manually install `libgl-dev` and `libgl1-mesa-dev`. This solved the error: Package opengl was not found in the pkg-config path.
