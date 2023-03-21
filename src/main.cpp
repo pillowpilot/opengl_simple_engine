@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception>
 #include <memory>
+#include <array>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -17,16 +18,16 @@
 
 // Globals
 const size_t numberOfVAOs = 1;
-GLuint VAOIds[numberOfVAOs];
+std::array<GLuint, numberOfVAOs> VAOIds;
 
 const size_t numberOfVBOs = 2;
-GLuint VBOIds[numberOfVBOs];
+std::array<GLuint, numberOfVBOs> VBOIds;
 
-auto cameraOffset = glm::vec3(0.0f, 0.0f, 32.0f);
+auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
 
 void loadCube(const GLuint vboId)
 {
-    const float vertices[] = {
+    const std::array vertices = {
         -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
         1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
         1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
@@ -40,17 +41,19 @@ void loadCube(const GLuint vboId)
         -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f};
 
+    const auto sizeOfBufferInBytes = sizeof(float) * vertices.size();
+
     glBindBuffer(GL_ARRAY_BUFFER, vboId); // GL_ARRAY_BUFFER is for Vertex attributes
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeOfBufferInBytes, vertices.data(), GL_STATIC_DRAW);
 }
 
 void initialize()
 {
-    glGenVertexArrays(sizeof(VAOIds), VAOIds);
-    glBindVertexArray(VAOIds[0]);
-    glGenBuffers(sizeof(VBOIds), VBOIds);
+    glGenVertexArrays(sizeof(VAOIds), VAOIds.data());
+    glBindVertexArray(VAOIds.at(0));
+    glGenBuffers(sizeof(VBOIds), VBOIds.data());
 
-    loadCube(VBOIds[0]); // Cube's positions are in vbo[0]
+    loadCube(VBOIds.at(0)); // Cube's positions are in vbo[0]
 }
 
 void updateWindow(window_t& window, GLuint programId, double currentTime)
@@ -96,7 +99,7 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
         glUniformMatrix4fv(mvMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
 
         // Associate VBO with the corresponding vertex attribute in the vertex shader
-        glBindBuffer(GL_ARRAY_BUFFER, VBOIds[0]); // Cube's positions are in vbo[0]
+        glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0)); // Cube's positions are in vbo[0]
         const auto indexOfVertexAttribute = 0; // See layout (location = 0) in vec3 position
         const auto numberOfComponentsPerVAD = 3;
         const auto typeOfEachComponent = GL_FLOAT;
