@@ -2,6 +2,7 @@
 #include <exception>
 #include <memory>
 #include <array>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -15,6 +16,8 @@
 #include "./vertex_shader.hpp"
 #include "./fragment_shader.hpp"
 #include "spdlog/spdlog.h"
+#include <cereal/types/vector.hpp>
+#include <cereal/archives/json.hpp>
 
 // Globals
 const size_t numberOfVAOs = 1;
@@ -24,22 +27,19 @@ const size_t numberOfVBOs = 2;
 std::array<GLuint, numberOfVBOs> VBOIds;
 
 auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
+glm::mat4 perspectiveMatrix;
 
-void loadCube(const GLuint vboId)
+void loadGeometry(const GLuint vboId)
 {
-    const std::array vertices = {
-        -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,
-        -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f};
+    std::vector<float> vertices;
+    {
+        const auto filepath = std::filesystem::path("../figures/pyramid.txt");
+        std::ifstream inputFile(filepath, std::ios_base::in);
+        cereal::JSONInputArchive ar(inputFile);
+
+        ar(vertices);
+        spdlog::info("Loaded vertices from {}", std::filesystem::absolute(filepath).string());
+    }
 
     const auto sizeOfBufferInBytes = sizeof(float) * vertices.size();
 
@@ -47,13 +47,31 @@ void loadCube(const GLuint vboId)
     glBufferData(GL_ARRAY_BUFFER, sizeOfBufferInBytes, vertices.data(), GL_STATIC_DRAW);
 }
 
-void initialize()
+void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
 {
+    const float aspectRatio = ((float) newWidth) / newHeight;
+    perspectiveMatrix = glm::perspective(1.04f, aspectRatio, 0.1f, 1000.0f); // 60 degrees = 1.04f radians
+
+    glViewport(0, 0, newWidth, newHeight);
+}
+
+void initialize(window_t& window)
+{
+    // Initialize perspective matrix
+    int windowHeight, windowWidth;
+    glfwGetFramebufferSize(window.get(), &windowWidth, &windowHeight);
+    const float aspectRatio = ((float) windowWidth) / windowHeight;
+    perspectiveMatrix = glm::perspective(1.04f, aspectRatio, 0.1f, 1000.0f); // 60 degrees = 1.04f radians
+
+    // Set window resize callback
+    glfwSetWindowSizeCallback(window.get(), windowReshapeCallback);
+
+    // Initialize geometry DS
     glGenVertexArrays(sizeof(VAOIds), VAOIds.data());
     glBindVertexArray(VAOIds.at(0));
     glGenBuffers(sizeof(VBOIds), VBOIds.data());
 
-    loadCube(VBOIds.at(0)); // Cube's positions are in vbo[0]
+    loadGeometry(VBOIds.at(0)); // Cube's positions are in vbo[0]
 }
 
 void updateWindow(window_t& window, GLuint programId, double currentTime)
@@ -63,12 +81,6 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(programId);
-
-    // Compute perspective matrix
-    int windowHeight, windowWidth;
-    glfwGetFramebufferSize(window.get(), &windowHeight, &windowWidth);
-    const float aspectRatio = ((float) windowWidth) / windowHeight;
-    const auto perspectiveMatrix = glm::perspective(1.04f, aspectRatio, 0.1f, 1000.0f); // 60 degrees = 1.04f radians
 
     // Upload perspective matrix
     const auto perspectiveMatrixLocation = glGetUniformLocation(programId, "proj_matrix");
@@ -92,7 +104,9 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     // Adjust OpenGL settings and draw
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
+    // Cube has 36 vertices.
+    // Pyramid, 18.
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 18, 24);
     
 }
 
@@ -126,7 +140,7 @@ int main()
     
     GLuint programId = createRenderingProgram(vertexShader.getId(), fragmentShader.getId());
 
-    initialize();
+    initialize(window);
     while(!glfwWindowShouldClose(window.get()))
     {
         updateWindow(window, programId, glfwGetTime());
