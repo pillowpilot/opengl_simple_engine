@@ -74,29 +74,26 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     const auto perspectiveMatrixLocation = glGetUniformLocation(programId, "proj_matrix");
     glUniformMatrix4fv(perspectiveMatrixLocation, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
 
-    for(int i = 0; i < 24; ++i)
-    {
-        const float timeFactor = currentTime + i;
-        // Upload time factor
-        const auto timeFactorLocation = glGetUniformLocation(programId, "time_factor");
-        glUniform1f(timeFactorLocation, timeFactor);
+    // Upload time factor
+    const auto timeFactorLocation = glGetUniformLocation(programId, "time_factor");
+    glUniform1f(timeFactorLocation, currentTime);
 
-        // Associate VBO with the corresponding vertex attribute in the vertex shader
-        glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0)); // Cube's positions are in vbo[0]
-        const auto indexOfVertexAttribute = 0; // See layout (location = 0) in vec3 position
-        const auto numberOfComponentsPerVAD = 3;
-        const auto typeOfEachComponent = GL_FLOAT;
-        const auto shouldNormalizeData = GL_FALSE;
-        const auto strideBetweenVAs = 0;
-        const auto initialOffset = reinterpret_cast<void*>(0);
-        glVertexAttribPointer(indexOfVertexAttribute, numberOfComponentsPerVAD, typeOfEachComponent, shouldNormalizeData, strideBetweenVAs, initialOffset);
-        glEnableVertexAttribArray(indexOfVertexAttribute);
+    // Associate VBO with the corresponding vertex attribute in the vertex shader
+    glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0)); // Cube's positions are in vbo[0]
+    const auto indexOfVertexAttribute = 0; // See layout (location = 0) in vec3 position
+    const auto numberOfComponentsPerVAD = 3;
+    const auto typeOfEachComponent = GL_FLOAT;
+    const auto shouldNormalizeData = GL_FALSE;
+    const auto strideBetweenVAs = 0;
+    const auto initialOffset = reinterpret_cast<void*>(0);
+    glVertexAttribPointer(indexOfVertexAttribute, numberOfComponentsPerVAD, typeOfEachComponent, shouldNormalizeData, strideBetweenVAs, initialOffset);
+    glEnableVertexAttribArray(indexOfVertexAttribute);
 
-        // Adjust OpenGL settings and draw
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    // Adjust OpenGL settings and draw
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
+    
 }
 
 window_t createWindow(const int height, const int width, const std::string& title)

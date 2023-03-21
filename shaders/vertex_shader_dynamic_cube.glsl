@@ -37,7 +37,7 @@ mat4 buildModelMatrix(float timeFactor)
 void main()
 {
     mat4 viewMatrix = buildViewMatrix();
-    mat4 modelMatrix = buildModelMatrix(time_factor);
+    mat4 modelMatrix = buildModelMatrix(gl_InstanceID + time_factor);
     mat4 mvMatrix = viewMatrix * modelMatrix;
 
     gl_Position = proj_matrix * (mvMatrix) * vec4(position, 1.0);
