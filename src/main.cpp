@@ -29,7 +29,7 @@ std::array<GLuint, numberOfVBOs> VBOIds;
 auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
 glm::mat4 perspectiveMatrix;
 
-void loadGeometry(const GLuint vboId)
+void loadGeometry(const GLuint vboId, const GLuint indexesId)
 {
     std::vector<float> vertices;
     {
@@ -41,10 +41,28 @@ void loadGeometry(const GLuint vboId)
         spdlog::info("Loaded vertices from {}", std::filesystem::absolute(filepath).string());
     }
 
-    const auto sizeOfBufferInBytes = sizeof(float) * vertices.size();
+    std::vector<glm::vec3> vertices_v2 = {
+        glm::vec3(+1, 0, +1), // 0
+        glm::vec3(-1, 0, +1), // 1
+        glm::vec3(+1, 0, -1), // 2
+        glm::vec3(-1, 0, -1), // 3
+        glm::vec3( 0, 1,  0), // 4
+    };
+
+    std::vector<unsigned int> indices_v2 = {
+        0, 1, 2, // base 1
+        2, 3, 1, // base 2
+        2, 4, 0, // side 1
+        3, 4, 2, // side 2
+        1, 4, 3, // side 3
+        1, 4, 0, // side 4
+    };
 
     glBindBuffer(GL_ARRAY_BUFFER, vboId); // GL_ARRAY_BUFFER is for Vertex attributes
-    glBufferData(GL_ARRAY_BUFFER, sizeOfBufferInBytes, vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(vertices_v2)::value_type) * vertices_v2.size(), vertices_v2.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexesId);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(decltype(indices_v2)::value_type) * indices_v2.size(), indices_v2.data(), GL_STATIC_DRAW);
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
@@ -71,7 +89,7 @@ void initialize(window_t& window)
     glBindVertexArray(VAOIds.at(0));
     glGenBuffers(sizeof(VBOIds), VBOIds.data());
 
-    loadGeometry(VBOIds.at(0)); // Cube's positions are in vbo[0]
+    loadGeometry(VBOIds.at(0), VBOIds.at(1)); // Cube's positions are in vbo[0]
 }
 
 void updateWindow(window_t& window, GLuint programId, double currentTime)
@@ -106,12 +124,62 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     glDepthFunc(GL_LEQUAL);
     // Cube has 36 vertices.
     // Pyramid, 18.
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 18, 24);
+    // glDrawArraysInstanced(GL_TRIANGLES, 0, 18, 24);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0));
+    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 24);
     
+}
+
+void glDebugOutput(GLenum source, 
+                            GLenum type, 
+                            unsigned int id, 
+                            GLenum severity, 
+                            GLsizei length, 
+                            const char *message, 
+                            const void *userParam)
+{
+    // ignore non-significant error/warning codes
+    if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return; 
+
+    std::cout << "---------------" << std::endl;
+    std::cout << "Debug message (" << id << "): " <<  message << std::endl;
+
+    switch (source)
+    {
+        case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
+        case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
+        case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
+    } std::cout << std::endl;
+
+    switch (type)
+    {
+        case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break; 
+        case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
+        case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
+        case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
+        case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
+        case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
+    } std::cout << std::endl;
+    
+    switch (severity)
+    {
+        case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
+        case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
+    } std::cout << std::endl;
+    std::cout << std::endl;
 }
 
 window_t createWindow(const int height, const int width, const std::string& title)
 {
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); 
     window_t window(glfwCreateWindow(height, width, title.c_str(), nullptr, nullptr));
     glfwMakeContextCurrent(window.get());
 
@@ -129,6 +197,17 @@ int main()
     window_t window = createWindow(windowHeight, windowWidth, windowTitle);
 
     initializeGLEW();
+
+    int flags; 
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        spdlog::info("Initializing debug output");
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); 
+        glDebugMessageCallback(glDebugOutput, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE); 
+    }
     
     glfwSwapInterval(1);
 
