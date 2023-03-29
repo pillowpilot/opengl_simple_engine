@@ -74,24 +74,22 @@ std::string readFile(std::filesystem::path path)
     }
 }
 
-template <class InputIter>
-std::ostream& prettyPrint(std::ostream& os, InputIter iter, InputIter end)
+template <class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
 {
-    const auto separator = ", ";
-
     os << "[";
 
-    if(iter != end) // If not empty
+    if(!v.empty())
     {
-        os << *iter;
-        iter = ++iter;
-        while(iter != end)
-        {
-            os << separator << *iter;
-            iter = ++iter;
-        }
+	auto iter = std::cbegin(v);
+	os << *iter;
+	while(iter != std::cend(v))
+	{
+	   os << ", " << *iter;
+	   iter = ++iter;
+	}
     }
 
-    os << "]";
-    return os;
+    return os << "]";
 }
+
