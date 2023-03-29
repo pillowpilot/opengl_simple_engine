@@ -19,17 +19,16 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/archives/json.hpp>
 
-// Globals
-const size_t numberOfVAOs = 1;
-std::array<GLuint, numberOfVAOs> VAOIds;
+#include "./mesh.hpp"
 
-const size_t numberOfVBOs = 2;
-std::array<GLuint, numberOfVBOs> VBOIds;
+// Globals
 
 auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
 glm::mat4 perspectiveMatrix;
 
-void loadGeometry(const GLuint vboId, const GLuint indexesId)
+std::shared_ptr<Mesh> mesh;
+
+void loadGeometry()
 {
     std::vector<float> vertices;
     {
@@ -58,11 +57,7 @@ void loadGeometry(const GLuint vboId, const GLuint indexesId)
         1, 4, 0, // side 4
     };
 
-    glBindBuffer(GL_ARRAY_BUFFER, vboId); // GL_ARRAY_BUFFER is for Vertex attributes
-    glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(vertices_v2)::value_type) * vertices_v2.size(), vertices_v2.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexesId);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(decltype(indices_v2)::value_type) * indices_v2.size(), indices_v2.data(), GL_STATIC_DRAW);
+    mesh = std::make_shared<Mesh>(vertices_v2, indices_v2);
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
@@ -84,12 +79,7 @@ void initialize(window_t& window)
     // Set window resize callback
     glfwSetWindowSizeCallback(window.get(), windowReshapeCallback);
 
-    // Initialize geometry DS
-    glGenVertexArrays(sizeof(VAOIds), VAOIds.data());
-    glBindVertexArray(VAOIds.at(0));
-    glGenBuffers(sizeof(VBOIds), VBOIds.data());
-
-    loadGeometry(VBOIds.at(0), VBOIds.at(1)); // Cube's positions are in vbo[0]
+    loadGeometry(); 
 }
 
 void updateWindow(window_t& window, GLuint programId, double currentTime)
@@ -108,26 +98,11 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     const auto timeFactorLocation = glGetUniformLocation(programId, "time_factor");
     glUniform1f(timeFactorLocation, currentTime);
 
-    // Associate VBO with the corresponding vertex attribute in the vertex shader
-    glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0)); // Cube's positions are in vbo[0]
-    const auto indexOfVertexAttribute = 0; // See layout (location = 0) in vec3 position
-    const auto numberOfComponentsPerVAD = 3;
-    const auto typeOfEachComponent = GL_FLOAT;
-    const auto shouldNormalizeData = GL_FALSE;
-    const auto strideBetweenVAs = 0;
-    const auto initialOffset = reinterpret_cast<void*>(0);
-    glVertexAttribPointer(indexOfVertexAttribute, numberOfComponentsPerVAD, typeOfEachComponent, shouldNormalizeData, strideBetweenVAs, initialOffset);
-    glEnableVertexAttribArray(indexOfVertexAttribute);
-
     // Adjust OpenGL settings and draw
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    // Cube has 36 vertices.
-    // Pyramid, 18.
-    // glDrawArraysInstanced(GL_TRIANGLES, 0, 18, 24);
-    glBindBuffer(GL_ARRAY_BUFFER, VBOIds.at(0));
-    glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 24);
-    
+
+    mesh->draw();    
 }
 
 void glDebugOutput(GLenum source, 
