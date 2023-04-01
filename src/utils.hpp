@@ -40,6 +40,8 @@ struct StringHelper {
 
 std::string readFile(std::filesystem::path path);
 
+std::ostream& operator<<(std::ostream& os, glm::vec3 const& v);
+
 template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& v);
 

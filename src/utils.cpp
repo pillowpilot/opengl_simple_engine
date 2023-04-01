@@ -74,6 +74,11 @@ std::string readFile(std::filesystem::path path)
     }
 }
 
+std::ostream& operator<<(std::ostream& os, glm::vec3 const& v)
+{
+    return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+}
+
 template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
 {
