@@ -14,7 +14,7 @@ mat4 buildRotateZ(float rad);
 
 mat4 buildViewMatrix()
 {
-    mat4 viewMatrix = buildTranslate(0.0, 0.0, -32.0);
+    mat4 viewMatrix = buildTranslate(0.0, 0.0, -16.0);
     return viewMatrix;
 }
 
@@ -41,7 +41,8 @@ void main()
     mat4 mvMatrix = viewMatrix * modelMatrix;
 
     gl_Position = proj_matrix * (mvMatrix) * vec4(position, 1.0);
-    varyingColor = vec4(position, 1.0) * 0.5 + vec4(0.5, 0.5, 0.5, 0.5);
+    // varyingColor = vec4(position, 1.0) * 0.5 + vec4(0.5, 0.5, 0.5, 0.5);
+    varyingColor = vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 mat4 buildTranslate(float x, float y, float z)
