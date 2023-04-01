@@ -19,14 +19,14 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/archives/json.hpp>
 
-#include "./mesh.hpp"
+#include "./model.hpp"
 
 // Globals
 
 auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
 glm::mat4 perspectiveMatrix;
 
-std::shared_ptr<Mesh> mesh;
+std::shared_ptr<Model> model;
 
 void loadGeometry()
 {
@@ -57,7 +57,8 @@ void loadGeometry()
         1, 4, 0, // side 4
     };
 
-    mesh = std::make_shared<Mesh>(vertices_v2, indices_v2);
+    const auto filepath = std::filesystem::path("../figures/teapot.obj");
+    model = std::make_shared<Model>(filepath);
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
@@ -102,7 +103,11 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
-    mesh->draw();    
+    // Draw wireframe
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    // glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // Disable wireframe
+
+    model->draw();
 }
 
 void glDebugOutput(GLenum source, 
