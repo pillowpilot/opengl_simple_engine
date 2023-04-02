@@ -1,7 +1,6 @@
 #include <iostream>
 #include <exception>
 #include <memory>
-#include <array>
 #include <vector>
 
 #include <GL/glew.h>
@@ -10,6 +9,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 #include <glm/gtx/transform.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include "./utils.hpp"
 #include "./program.hpp"
@@ -30,33 +31,6 @@ std::shared_ptr<Model> model;
 
 void loadGeometry()
 {
-    std::vector<float> vertices;
-    {
-        const auto filepath = std::filesystem::path("../figures/pyramid.txt");
-        std::ifstream inputFile(filepath, std::ios_base::in);
-        cereal::JSONInputArchive ar(inputFile);
-
-        ar(vertices);
-        spdlog::info("Loaded vertices from {}", std::filesystem::absolute(filepath).string());
-    }
-
-    std::vector<glm::vec3> vertices_v2 = {
-        glm::vec3(+1, 0, +1), // 0
-        glm::vec3(-1, 0, +1), // 1
-        glm::vec3(+1, 0, -1), // 2
-        glm::vec3(-1, 0, -1), // 3
-        glm::vec3( 0, 1,  0), // 4
-    };
-
-    std::vector<unsigned int> indices_v2 = {
-        0, 1, 2, // base 1
-        2, 3, 1, // base 2
-        2, 4, 0, // side 1
-        3, 4, 2, // side 2
-        1, 4, 3, // side 3
-        1, 4, 0, // side 4
-    };
-
     const auto filepath = std::filesystem::path("../figures/teapot.obj");
     model = std::make_shared<Model>(filepath);
 }
