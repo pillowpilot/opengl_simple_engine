@@ -13,6 +13,8 @@ struct Vertex
 {
     glm::vec3 position;
     glm::vec3 normal; // Placeholder
+
+    Vertex(float x, float y, float z){ position = glm::vec3(x, y, z); }
 };
 
 class Mesh 
