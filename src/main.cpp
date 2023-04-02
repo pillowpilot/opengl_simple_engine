@@ -22,18 +22,22 @@
 #include <cereal/archives/json.hpp>
 
 #include "./model.hpp"
+#include "./cube.hpp"
 
 // Globals
 
 auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
 glm::mat4 perspectiveMatrix;
 
+// Do not instanciate a class that depends on OpenGL (as Mesh, Cube, etc.) because OpenGL is *not* initialized yet!
 std::shared_ptr<Model> model;
+std::shared_ptr<procedual::Cube> cube;
 
 void loadGeometry()
 {
     const auto filepath = std::filesystem::path("../figures/teapot.obj");
     model = std::make_shared<Model>(filepath);
+    cube = std::make_shared<procedual::Cube>();
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
@@ -83,6 +87,7 @@ void updateWindow(window_t& window, GLuint programId, double currentTime)
     // glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // Disable wireframe
 
     model->draw();
+    cube->draw();
 }
 
 void glDebugOutput(GLenum source, 
