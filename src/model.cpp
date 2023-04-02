@@ -22,16 +22,16 @@ void Model::processNode(aiNode *nodePtr, const aiScene *scenePtr)
 
 Mesh Model::processMesh(aiMesh *meshPtr, const aiScene *scenePtr)
 {
-    std::vector<glm::vec3> vertices;
+    std::vector<Vertex> vertices;
     std::vector<uint> indices;
 
     vertices.reserve(meshPtr->mNumVertices);
     for(size_t i = 0; i < meshPtr->mNumVertices; ++i)
     {
-        glm::vec3 vertex;
-        vertex.x = meshPtr->mVertices[i].x;
-        vertex.y = meshPtr->mVertices[i].y;
-        vertex.z = meshPtr->mVertices[i].z;
+        Vertex vertex;
+        vertex.position.x = meshPtr->mVertices[i].x;
+        vertex.position.y = meshPtr->mVertices[i].y;
+        vertex.position.z = meshPtr->mVertices[i].z;
 
         vertices.push_back(vertex);
     }

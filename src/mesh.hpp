@@ -9,10 +9,16 @@
 #include "./utils.hpp"
 #include "spdlog/spdlog.h"
 
+struct Vertex
+{
+    glm::vec3 position;
+    glm::vec3 normal; // Placeholder
+};
+
 class Mesh 
 {
     public:
-        Mesh(std::vector<glm::vec3> const& vertices, std::vector<uint> const& indices); 
+        Mesh(std::vector<Vertex> const& vertices, std::vector<uint> const& indices); 
 	void draw() const 
 	{
 	    glBindVertexArray(m_vaoId);
@@ -29,7 +35,7 @@ class Mesh
 
         GLuint m_vaoId;
         std::vector<GLuint> m_vboIds;
-        std::vector<glm::vec3> m_vertices;
+        std::vector<Vertex> m_vertices;
         std::vector<uint> m_indices;
 };
 

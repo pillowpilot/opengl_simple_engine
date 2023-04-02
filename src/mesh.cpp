@@ -1,6 +1,6 @@
 #include "./mesh.hpp"
 
-Mesh::Mesh(std::vector<glm::vec3> const& vertices, std::vector<uint> const& indices)
+Mesh::Mesh(std::vector<Vertex> const& vertices, std::vector<uint> const& indices)
 : m_vertices(vertices), m_indices(indices), m_vboIds{0, 0}
 {
     // Generate Buffers
@@ -18,7 +18,11 @@ Mesh::Mesh(std::vector<glm::vec3> const& vertices, std::vector<uint> const& indi
 
     // Specify data layout
     glEnableVertexAttribArray(m_positionAttrIndex);
-    glVertexAttribPointer(m_positionAttrIndex, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), reinterpret_cast<void*>(0));
+    glVertexAttribPointer(m_positionAttrIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(0));
+
+    // TODO Add normals
+    // glEnableVertexAttribArray(m_normalAttrIndex);
+    // glVertexAttribPointer(m_normalAttrIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, normal)));
 
     spdlog::info("Mesh created");
 }
