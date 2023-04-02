@@ -2,6 +2,7 @@
 #define __MESH_HPP__
 
 #include <vector>
+#include <exception>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

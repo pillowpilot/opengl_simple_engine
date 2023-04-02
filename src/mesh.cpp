@@ -3,6 +3,14 @@
 Mesh::Mesh(std::vector<Vertex> const& vertices, std::vector<uint> const& indices)
 : m_vertices(vertices), m_indices(indices), m_vboIds{0, 0}
 {
+
+    if(!checkIfContextExists())
+    {
+	const auto msg = "A context needs to be initialized before constructing a Mesh object";
+	spdlog::error(msg);
+	throw new std::runtime_error(msg);
+    }
+    
     // Generate Buffers
     glGenVertexArrays(1, &m_vaoId);
 
