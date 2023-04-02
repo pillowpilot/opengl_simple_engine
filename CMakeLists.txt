@@ -10,7 +10,7 @@ find_package(spdlog REQUIRED)
 find_package(cereal REQUIRED)
 find_package(assimp REQUIRED)
 
-add_executable(${PROJECT_NAME} src/main.cpp src/model.cpp src/mesh.cpp src/utils.cpp src/shader.cpp src/vertex_shader.cpp src/fragment_shader.cpp src/program.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/cube.cpp src/model.cpp src/mesh.cpp src/utils.cpp src/shader.cpp src/vertex_shader.cpp src/fragment_shader.cpp src/program.cpp)
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} GLEW::GLEW)
 target_link_libraries(${PROJECT_NAME} glm::glm)
