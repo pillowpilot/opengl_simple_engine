@@ -28,11 +28,7 @@ Mesh Model::processMesh(aiMesh *meshPtr, const aiScene *scenePtr)
     vertices.reserve(meshPtr->mNumVertices);
     for(size_t i = 0; i < meshPtr->mNumVertices; ++i)
     {
-        Vertex vertex;
-        vertex.position.x = meshPtr->mVertices[i].x;
-        vertex.position.y = meshPtr->mVertices[i].y;
-        vertex.position.z = meshPtr->mVertices[i].z;
-
+        Vertex vertex(meshPtr->mVertices[i].x, meshPtr->mVertices[i].y, meshPtr->mVertices[i].z);
         vertices.push_back(vertex);
     }
 
