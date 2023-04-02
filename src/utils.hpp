@@ -28,6 +28,8 @@ void initializeGLFW();
 
 void initializeGLEW();
 
+bool checkIfContextExists();
+
 void printWelcomeMessage();
 
 // Compatibility wrapper around std::string

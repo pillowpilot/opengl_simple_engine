@@ -37,6 +37,16 @@ void initializeGLEW()
     spdlog::info("GLEW initialized correctly.");
 }
 
+bool checkIfContextExists()
+{
+    // GLFW must be already initialized to call glfwGetCurrentContext
+    if(!glfwInit()) // glfwInit is idenpotent (if GLFW is already initialized, returns true) 
+	return false;
+
+    const auto windowPtr = glfwGetCurrentContext();
+    return windowPtr != nullptr;
+}
+
 void printWelcomeMessage()
 {
     const auto glfwVersion = std::string(glfwGetVersionString());
