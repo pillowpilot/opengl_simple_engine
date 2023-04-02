@@ -17,6 +17,7 @@
 #include "./vertex_shader.hpp"
 #include "./fragment_shader.hpp"
 #include "spdlog/spdlog.h"
+// Serialization library
 #include <cereal/types/vector.hpp>
 #include <cereal/archives/json.hpp>
 
