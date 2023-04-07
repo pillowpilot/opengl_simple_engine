@@ -8,8 +8,8 @@ void Model::processNode(aiNode *nodePtr, const aiScene *scenePtr)
 	const auto meshId = nodePtr->mMeshes[i];
 	const auto meshPtr = scenePtr->mMeshes[meshId];
 
-	const auto mesh = processMesh(meshPtr, scenePtr);
-	m_meshes.push_back(mesh);
+	auto mesh = processMesh(meshPtr, scenePtr);
+	m_meshes.push_back(std::move(mesh));
     }
 
     // Recursively process each child
@@ -40,7 +40,7 @@ Mesh Model::processMesh(aiMesh *meshPtr, const aiScene *scenePtr)
             indices.push_back(face.mIndices[j]);
     }
 
-    const Mesh mesh(vertices, indices);
+    Mesh mesh(vertices, indices);
     return mesh;
 }
 

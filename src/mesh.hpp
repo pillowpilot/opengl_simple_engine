@@ -22,6 +22,36 @@ class Mesh
 {
     public:
         Mesh(std::vector<Vertex> const& vertices, std::vector<uint> const& indices); 
+
+	Mesh(const Mesh& other) = delete; // copy constructor
+	Mesh& operator=(const Mesh& other) = delete; // copy assignment
+	
+	Mesh(Mesh &&other) // move constructor
+	: m_vaoId(other.m_vaoId), m_vboIds(other.m_vboIds), m_vertices(other.m_vertices),
+	m_indices(other.m_indices)
+	{ 
+	    other.m_vaoId = 0;
+	    std::fill(std::begin(other.m_vboIds), std::end(other.m_vboIds), 0);
+	}
+	
+	Mesh& operator=(Mesh &&other) // move assignment
+	{
+	    if(this != &other)
+	    {
+		std::swap(m_vaoId, other.m_vaoId);
+		std::swap(m_vboIds, other.m_vboIds);
+		std::swap(m_vertices, other.m_vertices);
+		std::swap(m_indices, other.m_indices);
+	    }
+	    return *this;
+	}
+
+	~Mesh()
+	{
+	    glDeleteBuffers(m_vboIds.size(), m_vboIds.data());
+	    glDeleteBuffers(1, &m_vaoId);
+	}
+
 	void draw() const 
 	{
 	    glBindVertexArray(m_vaoId);
