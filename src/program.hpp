@@ -6,6 +6,8 @@
 
 #include "spdlog/spdlog.h"
 
+#include "./vertex_shader.hpp"
+#include "./fragment_shader.hpp"
 #include "./utils.hpp"
 
 enum class ProgramParameter
@@ -25,5 +27,34 @@ void requestProgramParameter(GLuint programId, ProgramParameter param, GLint* ou
 void printProgramInfoLog(GLuint programId);
 
 GLuint createRenderingProgram(GLuint vertexShaderId, GLuint fragmentShaderId);
+
+class RenderingProgram
+{
+public:
+    RenderingProgram(const VertexShader& vs, const FragmentShader& fs)
+    : m_vertexShader(vs), m_fragmentShader(fs), 
+	id(createRenderingProgram(vs.getId(), fs.getId()))
+    {}
+    void use() const
+    {
+	glUseProgram(id);
+    }
+    void setUniform(const std::string& name, float value) const
+    {
+	const auto location = glGetUniformLocation(id, name.c_str());
+	glUniform1f(location, value);
+    }
+    void setUniform(const std::string& name, const glm::mat4& value) const
+    {
+	const auto location = glGetUniformLocation(id, name.c_str());
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    }
+    auto getId() const { return id; }
+
+private:
+    const VertexShader m_vertexShader;
+    const FragmentShader m_fragmentShader;
+    const GLuint id;
+};
 
 #endif // __PROGRAM_HPP__
