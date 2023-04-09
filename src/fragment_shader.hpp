@@ -12,6 +12,7 @@
 class FragmentShader: public Shader
 {
 public:
+    FragmentShader(const FragmentShader& other) = default; 
     FragmentShader(const std::filesystem::path& path)
     {
         const auto sourceCode = readFile(path);

@@ -3,6 +3,8 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 #include "./utils.hpp"
 #include "./shader.hpp"
@@ -10,6 +12,7 @@
 class VertexShader: public Shader
 {
 public:
+    VertexShader(const VertexShader& other) = default; 
     VertexShader(const std::filesystem::path& path)
     {
         const auto sourceCode = readFile(path);
