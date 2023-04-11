@@ -26,18 +26,23 @@
 
 // Globals
 
-auto cameraOffset = glm::vec3(0.0f, 0.0f, 16.0f);
+auto cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+auto cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 glm::mat4 perspectiveMatrix;
 
 // Do not instanciate a class that depends on OpenGL (as Mesh, Cube, etc.) because OpenGL is *not* initialized yet!
 std::shared_ptr<Model> model;
 std::shared_ptr<procedual::Cube> cube;
+std::shared_ptr<procedual::Cube> lightA;
 
 void loadGeometry()
 {
     const auto filepath = std::filesystem::path("../figures/teapot.obj");
     model = std::make_shared<Model>(filepath);
     cube = std::make_shared<procedual::Cube>();
+    lightA = std::make_shared<procedual::Cube>();
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
@@ -62,32 +67,77 @@ void initialize(window_t& window)
     loadGeometry(); 
 }
 
-void updateWindow(window_t& window, GLuint programId, double currentTime)
+void processInput(window_t& window)
 {
+    // Set window to close
+    if(glfwGetKey(window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+	glfwSetWindowShouldClose(window.get(), true);
+	spdlog::info("Closing...");
+    }
+
+    // Update camera position
+    const auto cameraSpeed = 0.15f; // TODO Magic number
+    if(glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS)
+    {
+        cameraPosition += cameraSpeed * cameraFront;	
+    }
+    else if(glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS)
+    {
+	cameraPosition -= cameraSpeed * cameraFront;
+    }
+    else if(glfwGetKey(window.get(), GLFW_KEY_A) == GLFW_PRESS)
+    {
+	cameraPosition -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    }
+    else if(glfwGetKey(window.get(), GLFW_KEY_D) == GLFW_PRESS)
+    {
+	cameraPosition += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    } 
+}
+
+void updateWindow(window_t& window, RenderingProgram program, RenderingProgram lightingProgram, double currentTime)
+{
+    // Process keyboard/mouse input
+    processInput(window);
+
     // Clear background
     glClear(GL_DEPTH_BUFFER_BIT);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(programId);
+    // View matrix
+    const auto view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
 
-    // Upload perspective matrix
-    const auto perspectiveMatrixLocation = glGetUniformLocation(programId, "proj_matrix");
-    glUniformMatrix4fv(perspectiveMatrixLocation, 1, GL_FALSE, glm::value_ptr(perspectiveMatrix));
+    const auto objectColor = glm::vec3(1.0, 0.5, 0.3);
+    const auto lightColor = glm::vec3(1.0, 1.0, 1.0);
 
-    // Upload time factor
-    const auto timeFactorLocation = glGetUniformLocation(programId, "time_factor");
-    glUniform1f(timeFactorLocation, currentTime);
+    // Lighting
+    lightingProgram.use();
+    lightingProgram.setUniform("viewMatrix", view);
+    lightingProgram.setUniform("projectionMatrix", perspectiveMatrix);
+    lightingProgram.setUniform("objectColor", objectColor);
+    lightingProgram.setUniform("lightColor", lightColor);
+    
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    lightA->draw();
+    cube->draw();
+
+    program.use();
+    program.setUniform("proj_matrix", perspectiveMatrix);
+    program.setUniform("time_factor", currentTime);
 
     // Adjust OpenGL settings and draw
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
     // Draw wireframe
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     // glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ); // Disable wireframe
 
     model->draw();
-    cube->draw();
+    // cube->draw();
 }
 
 void glDebugOutput(GLenum source, 
@@ -171,18 +221,22 @@ int main()
     
     glfwSwapInterval(1);
 
-    const auto vertexShaderFilepath = std::filesystem::path("../shaders/vertex_shader_dynamic_cube.glsl");
-    const VertexShader vertexShader(vertexShaderFilepath);
+    const VertexShader vertexShader(
+		    std::filesystem::path("../shaders/vertex_shader_dynamic_cube.glsl")); 
+    const FragmentShader fragmentShader(
+		    std::filesystem::path("../shaders/fragment_shader_dynamic_cube.glsl")); 
+    const RenderingProgram program(vertexShader, fragmentShader);
 
-    const auto fragmentShaderFilepath = std::filesystem::path("../shaders/fragment_shader_dynamic_cube.glsl");
-    const FragmentShader fragmentShader(fragmentShaderFilepath);
-    
-    GLuint programId = createRenderingProgram(vertexShader.getId(), fragmentShader.getId());
+    const VertexShader lightingVertexShader(
+		    std::filesystem::path("../shaders/vertex_shader_light.glsl"));
+    const FragmentShader lightingFragmentShader(
+		    std::filesystem::path("../shaders/fragment_shader_white.glsl"));
+    const RenderingProgram lightingProgram(lightingVertexShader, lightingFragmentShader);
 
     initialize(window);
     while(!glfwWindowShouldClose(window.get()))
     {
-        updateWindow(window, programId, glfwGetTime());
+        updateWindow(window, program, lightingProgram, glfwGetTime());
         glfwSwapBuffers(window.get());
         glfwPollEvents();
     }
