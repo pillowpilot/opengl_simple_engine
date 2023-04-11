@@ -44,6 +44,11 @@ public:
 	const auto location = glGetUniformLocation(id, name.c_str());
 	glUniform1f(location, value);
     }
+    void setUniform(const std::string& name, const glm::vec3& value) const
+    {
+	const auto location = glGetUniformLocation(id, name.c_str());
+	glUniform3fv(location, 1, glm::value_ptr(value));
+    }
     void setUniform(const std::string& name, const glm::mat4& value) const
     {
 	const auto location = glGetUniformLocation(id, name.c_str());
