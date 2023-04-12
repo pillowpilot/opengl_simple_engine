@@ -14,7 +14,7 @@ tools.system.package_manager:sudo = True
  ========
 
  1. Run: `conan install . --output-folder=build --build=missing`, at the root directory.
- 2. At `build` (`cd build/`) run: `cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release`.
+ 2. At `build` (`cd build/`) run: `cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release`.
  3. Immediately start the actual building process with: `cmake --build .`.
 
 Development
