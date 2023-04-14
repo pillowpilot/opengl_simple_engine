@@ -1,6 +1,6 @@
 #include "./cube.hpp"
 
-namespace procedual
+namespace procedural
 {
 
 Cube::Cube(const float sideLength)

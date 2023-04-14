@@ -34,15 +34,15 @@ glm::mat4 perspectiveMatrix;
 
 // Do not instanciate a class that depends on OpenGL (as Mesh, Cube, etc.) because OpenGL is *not* initialized yet!
 std::shared_ptr<Model> model;
-std::shared_ptr<procedual::Cube> cube;
-std::shared_ptr<procedual::Cube> lightA;
+std::shared_ptr<procedural::Cube> cube;
+std::shared_ptr<procedural::Cube> lightA;
 
 void loadGeometry()
 {
     const auto filepath = std::filesystem::path("../figures/teapot.obj");
     model = std::make_shared<Model>(filepath);
-    cube = std::make_shared<procedual::Cube>();
-    lightA = std::make_shared<procedual::Cube>();
+    cube = std::make_shared<procedural::Cube>();
+    lightA = std::make_shared<procedural::Cube>();
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)

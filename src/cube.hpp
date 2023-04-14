@@ -10,7 +10,7 @@
 #include "./mesh.hpp"
 #include "spdlog/spdlog.h"
 
-namespace procedual
+namespace procedural
 {
 
 class Cube
