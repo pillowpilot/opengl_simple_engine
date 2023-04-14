@@ -24,9 +24,9 @@ std::vector<Vertex> Cube::generateCubeVertices(const float sideLength) const
     return vertices;
 }
 
-std::vector<uint> Cube::generateCubeIndices() const
+std::vector<unsigned int> Cube::generateCubeIndices() const
 {
-    std::vector<uint> indices{
+    std::vector<unsigned int> indices{
 	0, 1, 2,
 	1, 3, 2,
 	4, 5, 6,

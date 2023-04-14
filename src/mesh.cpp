@@ -1,6 +1,6 @@
 #include "./mesh.hpp"
 
-Mesh::Mesh(std::vector<Vertex> const& vertices, std::vector<uint> const& indices)
+Mesh::Mesh(std::vector<Vertex> const& vertices, std::vector<unsigned int> const& indices)
 : m_vertices(vertices), m_indices(indices), m_vboIds{0, 0}
 {
 

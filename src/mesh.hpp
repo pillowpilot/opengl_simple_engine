@@ -21,7 +21,7 @@ struct Vertex
 class Mesh 
 {
     public:
-        Mesh(std::vector<Vertex> const& vertices, std::vector<uint> const& indices); 
+        Mesh(std::vector<Vertex> const& vertices, std::vector<unsigned int> const& indices); 
 
 	Mesh(const Mesh& other) = delete; // copy constructor
 	Mesh& operator=(const Mesh& other) = delete; // copy assignment
@@ -69,7 +69,7 @@ class Mesh
         GLuint m_vaoId;
         std::vector<GLuint> m_vboIds;
         std::vector<Vertex> m_vertices;
-        std::vector<uint> m_indices;
+        std::vector<unsigned int> m_indices;
 };
 
 #endif // __MESH_HPP__

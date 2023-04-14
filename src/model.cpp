@@ -23,7 +23,7 @@ void Model::processNode(aiNode *nodePtr, const aiScene *scenePtr)
 Mesh Model::processMesh(aiMesh *meshPtr, const aiScene *scenePtr)
 {
     std::vector<Vertex> vertices;
-    std::vector<uint> indices;
+    std::vector<unsigned int> indices;
 
     vertices.reserve(meshPtr->mNumVertices);
     for(size_t i = 0; i < meshPtr->mNumVertices; ++i)
@@ -47,7 +47,7 @@ Mesh Model::processMesh(aiMesh *meshPtr, const aiScene *scenePtr)
 Model::Model(std::filesystem::path const& filepath)
 {
    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile( filepath,
+    const aiScene* scene = importer.ReadFile(filepath.string(),
         aiProcess_CalcTangentSpace       |
         aiProcess_Triangulate            |
         aiProcess_JoinIdenticalVertices  |

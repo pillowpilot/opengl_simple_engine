@@ -23,7 +23,7 @@ class Cube
 	}
     private:
 	std::vector<Vertex> generateCubeVertices(const float sideLength) const;
-	std::vector<uint> generateCubeIndices() const;
+	std::vector<unsigned int> generateCubeIndices() const;
 	Mesh m_mesh;
 };
 
