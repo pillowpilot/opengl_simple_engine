@@ -78,9 +78,12 @@ std::string readFile(std::filesystem::path path)
     catch(std::system_error& e)
     {
         spdlog::error("Error while reading file {}", std::filesystem::absolute(path).string());
-        spdlog::error("System error message: {}", e.code().message());
+        if(!std::filesystem::exists(path))
+            spdlog::error("File does not exists");
+        else
+            spdlog::error("System error message: {}", e.code().message());
 
-        return std::string("");
+        return std::string(""); // TODO Add std::optional
     }
 }
 
