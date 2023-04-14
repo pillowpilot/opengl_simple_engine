@@ -32,7 +32,7 @@ auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 glm::mat4 perspectiveMatrix;
 
-// Do not instanciate a class that depends on OpenGL (as Mesh, Cube, etc.) because OpenGL is *not* initialized yet!
+// Do not instantiate a class that depends on OpenGL (as Mesh, Cube, etc.) because OpenGL is *not* initialized yet!
 std::shared_ptr<Model> model;
 std::shared_ptr<procedural::Cube> cube;
 std::shared_ptr<procedural::Cube> lightA;

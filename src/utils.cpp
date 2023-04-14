@@ -40,7 +40,7 @@ void initializeGLEW()
 bool checkIfContextExists()
 {
     // GLFW must be already initialized to call glfwGetCurrentContext
-    if(!glfwInit()) // glfwInit is idenpotent (if GLFW is already initialized, returns true) 
+    if(!glfwInit()) // glfwInit is idempotent (if GLFW is already initialized, returns true) 
 	return false;
 
     const auto windowPtr = glfwGetCurrentContext();
