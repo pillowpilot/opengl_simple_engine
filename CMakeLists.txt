@@ -17,3 +17,9 @@ target_link_libraries(${PROJECT_NAME} glm::glm)
 target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} cereal::cereal)
 target_link_libraries(${PROJECT_NAME} assimp::assimp)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION "."
+        RUNTIME DESTINATION bin
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        )
